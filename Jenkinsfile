@@ -18,4 +18,21 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            script{
+                 withCredentials([string(credentialsId: 'telegram-token', variable: 'TOKEN'), string(credentialsId: 'telegram-id', variable: 'CHAT_ID')]) {
+                    sh ' curl -s -X POST https://api.telegram.org/bot"$TOKEN"/sendMessage -d chat_id="$CHAT_ID" -d text="Build ${JOB_NAME}: Success" '
+                 }
+            }
+        }
+        failure {
+            script{
+                withCredentials([string(credentialsId: 'telegram-token', variable: 'TOKEN'), string(credentialsId: 'telegram-id', variable: 'CHAT_ID')]) {
+                    sh ' curl -s -X POST https://api.telegram.org/bot"$TOKEN"/sendMessage -d chat_id="$CHAT_ID" -d text="Build ${JOB_NAME}: Failed" '
+                }
+            }
+        }
+    }
 }
